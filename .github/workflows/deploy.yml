@@ -1,29 +1,39 @@
-name: Build and Push
+name: Build Docker Image
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build:
+  docker:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Build Docker Image
+        run: |
+          docker build -t payment-service .
 
-      - name: Build Image
-        run: docker build -t payment-service .
+      - name: Tag Docker Image
+        run: |
+          docker tag payment-service:latest ${{ secrets.DOCKER_USERNAME }}/payment-service:latest
 
-      - name: Tag Image
-        run: docker tag payment-service:latest YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/payment-service:latest
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/payment-service:latest
 
-      - name: Push Image
-        run: docker push YOUR_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/payment-service:latest
+      - name: GitOps Information
+        run: |
+          echo "Docker image pushed successfully."
+          echo "ArgoCD watches the Git repository."
