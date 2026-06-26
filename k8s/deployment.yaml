@@ -2,22 +2,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment-service
+  namespace: exercise3
+
 spec:
   replicas: 3
+
   selector:
     matchLabels:
       app: payment-service
+
   template:
     metadata:
-      name: payment-service
-      namespace: exercise3
       labels:
         app: payment-service
-        metadata:
+
     spec:
       containers:
       - name: payment-service
         image: poobesh1/payment-service:latest
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
