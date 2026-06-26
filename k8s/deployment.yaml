@@ -9,8 +9,11 @@ spec:
       app: payment-service
   template:
     metadata:
+      name: payment-service
+      namespace: exercise3
       labels:
         app: payment-service
+        metadata:
     spec:
       containers:
       - name: payment-service
